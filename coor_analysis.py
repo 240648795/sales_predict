@@ -9,7 +9,6 @@ from sklearn.preprocessing import MinMaxScaler
 plt.rcParams['font.sans-serif'] = ['SimHei']
 mfont = FontProperties(fname=r"C:\Windows\Fonts\simhei.ttf", size=14)
 
-
 def create_interpolate_feature(filename, outputfilename):
     data = pd.read_csv(filename)
     date = data['日期']
@@ -73,11 +72,11 @@ def get_coorfig_qm(filepath, outputpath, skip_rows):
         p2 = plt.plot(xs, y2)
         plt.gcf().autofmt_xdate()
         plt.legend([p1, p2], labels=['行业销量', columns[i]])
-        if coor_num >= 0.7 and coor_num < 1:
+        if abs(coor_num) >= 0.7 and abs(coor_num) < 1:
             plt.savefig(outputpath + '/70/行业销量-' + columns[i] + '，相关系数为：' + str(coor_num) + '.png', bbox_inches='tight')
-        elif coor_num >= 0.6 and coor_num < 0.7:
+        elif abs(coor_num) >= 0.6 and abs(coor_num) < 0.7:
             plt.savefig(outputpath + '/60/行业销量-' + columns[i] + '，相关系数为：' + str(coor_num) + '.png', bbox_inches='tight')
-        elif coor_num >= 0.5 and coor_num < 0.6:
+        elif abs(coor_num) >= 0.5 and abs(coor_num) < 0.6:
             plt.savefig(outputpath + '/50/行业销量-' + columns[i] + '，相关系数为：' + str(coor_num) + '.png', bbox_inches='tight')
         else:
             plt.savefig(outputpath + '/other/行业销量-' + columns[i] + '，相关系数为：' + str(coor_num) + '.png',
