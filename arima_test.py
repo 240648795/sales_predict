@@ -110,6 +110,6 @@ if __name__ == '__main__':
     # print ('param:',param,param_seasonal)
     # 可以使用(1, 1, 1)(1, 1, 1, 12)
     # get_sarimax_predict('2020-12-01', '2021-06-01', param, param_seasonal)
-    y_pred = get_sarimax_predict('2020-11-01', '2021-12-01', (1, 1, 1), (1, 1, 1, 12))
+    y_pred = get_sarimax_predict('2020-09-01', '2021-12-01', (1, 1, 1), (1, 1, 1, 12))
     print(y_pred)
     pass
