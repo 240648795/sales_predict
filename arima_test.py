@@ -66,7 +66,7 @@ def cal_pdq():
 
 
 def get_sarimax_predict(start_time, end_time, order, seasonal_order):
-    data = pd.read_csv(r'data/zhuang_index/index_without2feature_interpolate.csv')
+    data = pd.read_csv(r'data/wa_index/wa_month.csv')
     data = data[[data.columns[0], data.columns[1]]]
     data[data.columns[1]] = data[data.columns[1]].interpolate()
 
@@ -88,10 +88,10 @@ def get_sarimax_predict(start_time, end_time, order, seasonal_order):
     y_real = y[start_time:end_time]
     y_pred = pred.predicted_mean
 
-    print(y_real)
-    print(y_pred)
-    print(r2_score(y_real, y_pred))
-    print(abs(y_real - y_pred).mean())
+    # print(y_real)
+    # print(y_pred)
+    # print(r2_score(y_real, y_pred))
+    # print(abs(y_real - y_pred).mean())
 
     p1 = plt.plot(y, label='实际值')
     p2 = plt.plot(y_pred, label='预测值', alpha=.7)
@@ -102,8 +102,14 @@ def get_sarimax_predict(start_time, end_time, order, seasonal_order):
     plt.xlabel('时间')
     plt.ylabel('销量')
     plt.show()
+    return y_pred
 
 
 if __name__ == '__main__':
-    param, param_seasonal = cal_pdq()
-    get_sarimax_predict('2018-12-01', '2019-12-01', param, param_seasonal)
+    # param, param_seasonal = cal_pdq()
+    # print ('param:',param,param_seasonal)
+    # 可以使用(1, 1, 1)(1, 1, 1, 12)
+    # get_sarimax_predict('2020-12-01', '2021-06-01', param, param_seasonal)
+    y_pred = get_sarimax_predict('2020-11-01', '2021-12-01', (1, 1, 1), (1, 1, 1, 12))
+    print(y_pred)
+    pass

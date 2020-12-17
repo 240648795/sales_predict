@@ -90,9 +90,9 @@ def train(filename, needcol, savemodel, savedetail):
     X = data[:, 1:]
     y = data[:, 0]
 
-    # random_state为None用于衡量准确率
+    # # random_state为None用于衡量准确率
     # avg_r2 = []
-    # for i in range(0,50):
+    # for i in range(0,100):
     #     x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.15, random_state=None)
     #     model = RandomForestRegressor()
     #     model.fit(x_train, y_train)
