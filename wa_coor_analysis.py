@@ -1,14 +1,7 @@
 # -*- coding : utf-8-*-
 import os
-
-import pandas as pd
-from datetime import datetime
 import numpy as np
-from matplotlib.font_manager import FontProperties
-import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
-import warnings
-import itertools
 from datetime import datetime
 from matplotlib.font_manager import FontProperties
 import pandas as pd
@@ -78,7 +71,7 @@ def create_arima_feature(filename, start_time, end_time, outputfilename):
     y_pred_total_df.columns = columns
     y_pred_date = pd.date_range(start_time, end_time, freq='MS')
     y_pred_total_df['日期'] = y_pred_date
-    y_pred_total_df.to_csv(outputfilename)
+    y_pred_total_df.to_csv(outputfilename,index=None)
     pass
 
 
@@ -249,7 +242,7 @@ def create_macro_wa_coor_fig_main():
 
 if __name__ == '__main__':
     # 预测宏观因子
-    create_arima_feature(r'./data/wa_index/features_month_interpolate.csv','2020-11-01', '2021-11-01',
+    create_arima_feature(r'./data/wa_index/features_month_interpolate.csv', '2020-11-01', '2021-11-01',
                          r'./data/wa_index/features_month_interpolate_arima_predict.csv')
 
     # 生成m1到m2的宏观因子数据
