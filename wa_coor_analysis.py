@@ -1,4 +1,5 @@
 # -*- coding : utf-8-*-
+import math
 import os
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
@@ -71,7 +72,7 @@ def create_arima_feature(filename, start_time, end_time, outputfilename):
     y_pred_total_df.columns = columns
     y_pred_date = pd.date_range(start_time, end_time, freq='MS')
     y_pred_total_df['日期'] = y_pred_date
-    y_pred_total_df.to_csv(outputfilename,index=None)
+    y_pred_total_df.to_csv(outputfilename, index=None)
     pass
 
 
@@ -114,6 +115,18 @@ def create_m_feature(filename, outputfilename, skip_rows):
     pass
 
 
+def get_unit_name(index_int_len):
+    if index_int_len == 5:
+        str_index_int_len = '万'
+    elif index_int_len == 8:
+        str_index_int_len = '百万'
+    else:
+        str_index_int_len = ''
+
+    return str_index_int_len
+    pass
+
+
 # 做一个相关性图表（挖）
 def create_macro_wa_coor_fig(macro_filename, wa_index_name, oufputpath, type='m'):
     macro_index = pd.read_excel(macro_filename, skiprows=5, header=None)
@@ -131,9 +144,19 @@ def create_macro_wa_coor_fig(macro_filename, wa_index_name, oufputpath, type='m'
         macro_index['日期'] = macro_index['日期'].apply(lambda x: datetime.strptime(x, '%Y/%m'))
     macro_index = macro_index.set_index('日期')
 
+    # 宏观数值的均值的数位，用于将其缩放
+    macro_index_value_mean = macro_index[macro_index_name].mean()
+    macro_index_value_mean_intlen = len(str(int(macro_index_value_mean)))
+    macro_index[macro_index_name] = macro_index[macro_index_name] / math.pow(10, macro_index_value_mean_intlen - 1)
+
+    # 计算挖掘机指数的数值
     wa_index = pd.read_csv(wa_index_name)
     wa_index['日期'] = wa_index['日期'].apply(lambda x: datetime.strptime(x, '%Y/%m'))
     wa_index = wa_index.set_index('日期')
+
+    wa_index_value_mean = wa_index[wa_index.columns[0]].mean()
+    wa_index_value_mean_intlen = len(str(int(wa_index_value_mean)))
+    wa_index[wa_index.columns[0]] = wa_index[wa_index.columns[0]] / math.pow(10, wa_index_value_mean_intlen - 1)
 
     wa_macro_index = pd.concat([wa_index[wa_index.columns[0]], macro_index[macro_index.columns[0]]], axis=1)
     wa_macro_index = wa_macro_index.dropna()
@@ -161,12 +184,18 @@ def create_macro_wa_coor_fig(macro_filename, wa_index_name, oufputpath, type='m'
     total_xi_df.columns = [wa_macro_index_columns[1], wa_macro_index_columns[2], wa_macro_index_columns[2] + 'M-1',
                            wa_macro_index_columns[2] + 'M-2']
 
-    min_max_scaler_model = MinMaxScaler()
-    total_index = min_max_scaler_model.fit_transform(total_xi_df)
+    # min_max_scaler_model = MinMaxScaler()
+    # total_index = min_max_scaler_model.fit_transform(total_xi_df)
 
+    total_index = np.asarray(total_xi_df)
+    # print(total_index)
     y1 = total_index[:, 0]
     for i in range(1, len(total_xi_df.columns)):
         y2 = total_index[:, i]
+
+        # print(y1)
+        # print(y2)
+        # print(np.corrcoef(y1, y2))
         coor_num = round(
             np.corrcoef(y1, y2)[0, 1], 2)
         plt.clf()
@@ -178,7 +207,12 @@ def create_macro_wa_coor_fig(macro_filename, wa_index_name, oufputpath, type='m'
         p1 = plt.plot(date, y1)
         p2 = plt.plot(date, y2)
         plt.gcf().autofmt_xdate()
-        plt.legend([p1, p2], labels=[total_xi_df.columns[0], total_xi_df.columns[i]])
+
+        # 做出图上的单位
+        macro_index_value_unit = get_unit_name(macro_index_value_mean_intlen)
+        wa_index_value_unit = get_unit_name(wa_index_value_mean_intlen)
+        plt.legend([p1, p2], labels=[total_xi_df.columns[0] + wa_index_value_unit,
+                                     total_xi_df.columns[i] + macro_index_value_unit])
 
         if abs(coor_num) >= 0.7 and abs(coor_num) < 1:
             plt.savefig(oufputpath + '/70/' +
@@ -242,11 +276,19 @@ def create_macro_wa_coor_fig_main():
 
 if __name__ == '__main__':
     # 预测宏观因子
-    create_arima_feature(r'./data/wa_index/features_month_interpolate.csv', '2020-11-01', '2021-11-01',
-                         r'./data/wa_index/features_month_interpolate_arima_predict.csv')
+    # create_arima_feature(r'./data/wa_index/features_month_interpolate.csv', '2020-11-01', '2021-11-01',
+    #                      r'./data/wa_index/features_month_interpolate_arima_predict.csv')
 
     # 生成m1到m2的宏观因子数据
     # create_m_feature(r'./data/wa_index/features_month_interpolate.csv',
     #                  r'./data/wa_index/features_month_interpolate_m1-2.csv', skip_rows=2)
+
+    # 做所有相关性图表（挖）
+    # create_macro_wa_coor_fig_main()
+
+    # 做一张相关性图表
+    create_macro_wa_coor_fig(r'./data/wa_index/wa_macro_index/month/PPP项目额统计分行业小类(月)-轨道交通.xls',
+                             r'./data/wa_index/wa_month.csv',
+                             r'./data/wa_index/wa_png/month', type='m')
 
     pass
